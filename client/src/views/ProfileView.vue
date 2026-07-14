@@ -1,18 +1,47 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useAcademicRecord } from '../composables/useAcademicRecord';
 import { useToast } from '../composables/useToast';
 import BaseInput from '../components/ui/BaseInput.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 
-const { profile, updateProfile } = useAcademicRecord();
+const { profile, updateProfile, fetchProfile } = useAcademicRecord();
 const toast = useToast();
 
-const form = reactive({ ...profile });
+const form = reactive({
+  name: '',
+  rollNumber: '',
+  program: '',
+  department: '',
+  university: '',
+  targetCgpa: 3.5,
+});
+const saving = ref(false);
 
-function handleSave() {
-  updateProfile({ ...form, targetCgpa: Number(form.targetCgpa) });
-  toast.success('Profile updated.');
+onMounted(async () => {
+  await fetchProfile();
+  if (profile) {
+    Object.assign(form, {
+      name: profile.name || '',
+      rollNumber: profile.rollNumber || '',
+      program: profile.program || '',
+      department: profile.department || '',
+      university: profile.university || '',
+      targetCgpa: profile.targetCgpa || 3.5,
+    });
+  }
+});
+
+async function handleSave() {
+  saving.value = true;
+  try {
+    await updateProfile({ ...form, targetCgpa: Number(form.targetCgpa) });
+    toast.success('Profile updated.');
+  } catch {
+    toast.error('Failed to update profile.');
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
@@ -34,7 +63,9 @@ function handleSave() {
       <BaseInput v-model="form.targetCgpa" type="number" label="Target CGPA" min="0" max="4" step="0.1" />
 
       <div class="actions">
-        <BaseButton type="submit">Save changes</BaseButton>
+        <BaseButton type="submit" :disabled="saving">
+          {{ saving ? 'Saving...' : 'Save changes' }}
+        </BaseButton>
       </div>
     </form>
   </div>

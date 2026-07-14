@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAcademicRecord } from '../composables/useAcademicRecord';
 import { useToast } from '../composables/useToast';
@@ -17,8 +17,12 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const { findSemester, addCourse, updateCourse, deleteCourse } = useAcademicRecord();
+const { findSemester, addCourse, updateCourse, deleteCourse, fetchSemesters } = useAcademicRecord();
 const toast = useToast();
+
+onMounted(() => {
+  fetchSemesters();
+});
 
 const semester = computed(() => findSemester(props.semesterId));
 const gpa = computed(() => (semester.value ? calculateSemesterGpa(semester.value.courses) : 0));
@@ -38,21 +42,21 @@ function openEdit(course) {
   showForm.value = true;
 }
 
-function handleSave(payload) {
+async function handleSave(payload) {
   if (editingCourse.value) {
-    updateCourse(props.semesterId, editingCourse.value.id, payload);
+    await updateCourse(props.semesterId, editingCourse.value._id, payload);
     toast.success('Course updated.');
   } else {
-    addCourse(props.semesterId, payload);
+    await addCourse(props.semesterId, payload);
     toast.success(`${payload.title} added.`);
   }
   showForm.value = false;
   editingCourse.value = null;
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!coursePendingDelete.value) return;
-  deleteCourse(props.semesterId, coursePendingDelete.value.id);
+  await deleteCourse(props.semesterId, coursePendingDelete.value._id);
   toast.info(`${coursePendingDelete.value.title} removed.`);
   coursePendingDelete.value = null;
 }
@@ -79,7 +83,7 @@ function confirmDelete() {
     <section class="course-list">
       <CourseCard
         v-for="course in semester.courses"
-        :key="course.id"
+        :key="course._id"
         :course="course"
         @edit="openEdit"
         @delete="coursePendingDelete = $event"

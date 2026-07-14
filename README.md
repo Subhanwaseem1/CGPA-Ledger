@@ -1,49 +1,59 @@
-# CGPA Ledger — Student CGPA Calculator
+# CGPA Ledger — Full-Stack CGPA Calculator
 
-A Vue 3 + Vite single-page application for tracking semester GPA and overall CGPA.
-
-## Getting Started
-
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm run build    # production build → dist/
-```
-
-Sign in with any university email and a password of 4+ characters.
-
-## Tech Stack
-
-- Vue 3 (`<script setup>`, Composition API)
-- Vite
-- Vue Router 4
+A full-stack application for tracking semester GPA and overall CGPA, built with Vue 3 + Express.js + MongoDB.
 
 ## Project Structure
 
 ```
-src/
-├── assets/styles/       Design tokens (variables.css) + global styles (main.css)
-├── components/
-│   ├── layout/          Navbar, Sidebar, Footer
-│   ├── ui/              BaseButton, BaseInput, BaseSelect, BaseModal,
-│   │                    ConfirmDialog, EmptyState, ToastNotification
-│   ├── data/            DataTable, StatsCard, SummaryCard, ProgressCard, GPAChart
-│   ├── semester/        SemesterCard, SemesterForm
-│   └── course/          CourseCard, CourseForm, GradeSelector
-├── composables/         useAcademicRecord, useAuth, useToast, useLocalStorage
-├── data/                sampleData.js
-├── layouts/             DefaultLayout, AuthLayout
-├── router/              index.js
-├── utils/               gradeScale.js, gpaFormulas.js, id.js
-└── views/               DashboardView, SemestersView, SemesterDetailView,
-                         WhatIfView, ProfileView, SettingsView, LoginView, NotFoundView
+├── client/          Vue 3 + Vite frontend
+│   └── src/
+│       ├── api/          Axios instance with JWT interceptors
+│       ├── composables/  useAuth, useAcademicRecord, useToast
+│       ├── views/        Dashboard, Semesters, Profile, Settings, Login, Register
+│       └── ...
+└── server/          Express.js backend
+    ├── models/      Mongoose schemas (User, Semester)
+    ├── routes/      REST API (auth, semesters, profile)
+    ├── middleware/  JWT authentication
+    └── server.js    Entry point
 ```
 
-## Features
+## Getting Started
 
-- Dashboard with CGPA, credit-hour, and course stats, SVG GPA trend chart, and semester overview
-- Full CRUD for semesters and courses with modals and confirm dialogs
-- What-If Planner for projecting future CGPA
-- Route-based authentication with navigation guard
-- Light/dark theme toggle
-- Data persistence via localStorage with reset and clear options in Settings
+### Server
+
+```bash
+cd server
+npm install
+npm run dev      # http://localhost:3000
+```
+
+### Client
+
+```bash
+cd client
+npm install
+npm run dev      # http://localhost:5173
+```
+
+## Tech Stack
+
+- **Frontend:** Vue 3, Vite, Vue Router 4, Axios
+- **Backend:** Express.js, Mongoose, JWT, bcrypt
+- **Database:** MongoDB Atlas
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/register | Create account |
+| POST | /api/auth/login | Sign in |
+| GET | /api/profile | Get profile |
+| PUT | /api/profile | Update profile |
+| GET | /api/semesters | List all semesters |
+| POST | /api/semesters | Create semester |
+| PUT | /api/semesters/:id | Update semester |
+| DELETE | /api/semesters/:id | Delete semester |
+| POST | /api/semesters/:id/courses | Add course |
+| PUT | /api/semesters/:id/courses/:courseId | Update course |
+| DELETE | /api/semesters/:id/courses/:courseId | Delete course |

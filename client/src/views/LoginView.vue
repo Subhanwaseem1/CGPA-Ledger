@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import { useToast } from '../composables/useToast';
@@ -11,8 +11,10 @@ const route = useRoute();
 const { login } = useAuth();
 const toast = useToast();
 
-const form = reactive({ email: 'muhammad.subhan@uskt.edu.pk', password: '' });
+const form = reactive({ email: '', password: '' });
 const errors = reactive({ email: '', password: '' });
+const loading = ref(false);
+const serverError = ref('');
 
 function validate() {
   errors.email = form.email.includes('@') ? '' : 'Enter a valid university email.';
@@ -20,26 +22,38 @@ function validate() {
   return !errors.email && !errors.password;
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!validate()) return;
-  login(form.email);
-  toast.success('Signed in successfully.');
-  router.push(route.query.redirect || { name: 'dashboard' });
+  loading.value = true;
+  serverError.value = '';
+  try {
+    await login(form.email, form.password);
+    toast.success('Signed in successfully.');
+    router.push(route.query.redirect || { name: 'dashboard' });
+  } catch (err) {
+    serverError.value = err.response?.data?.message || 'Login failed. Please try again.';
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
 <template>
   <div class="login-view">
     <h2>Welcome back</h2>
-    <p class="subtitle">Sign in to continue tracking your CGPA. This demo accepts any password of 4+ characters.</p>
+    <p class="subtitle">Sign in to continue tracking your CGPA.</p>
+
+    <p v-if="serverError" class="error-msg">{{ serverError }}</p>
 
     <form class="form" @submit.prevent="handleSubmit">
       <BaseInput v-model="form.email" type="email" label="University email" required :error="errors.email" />
       <BaseInput v-model="form.password" type="password" label="Password" required :error="errors.password" placeholder="••••••••" />
-      <BaseButton type="submit" full-width>Sign in</BaseButton>
+      <BaseButton type="submit" full-width :disabled="loading">
+        {{ loading ? 'Signing in...' : 'Sign in' }}
+      </BaseButton>
     </form>
 
-    <p class="footnote">Session is stored locally in your browser.</p>
+    <p class="footnote">Don't have an account? <RouterLink :to="{ name: 'register' }">Register here</RouterLink></p>
   </div>
 </template>
 
@@ -65,5 +79,19 @@ function handleSubmit() {
   margin-top: var(--space-6);
   font-size: var(--fs-caption);
   color: var(--color-ink-300);
+}
+
+.footnote a {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.error-msg {
+  color: var(--color-danger);
+  font-size: var(--fs-body-sm);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-danger-soft);
+  border-radius: var(--radius-md);
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAcademicRecord } from '../composables/useAcademicRecord';
 import { useToast } from '../composables/useToast';
 import SemesterCard from '../components/semester/SemesterCard.vue';
@@ -9,21 +9,25 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.vue';
 import EmptyState from '../components/ui/EmptyState.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 
-const { semestersWithGpa, addSemester, deleteSemester } = useAcademicRecord();
+const { semestersWithGpa, addSemester, deleteSemester, fetchSemesters, loading } = useAcademicRecord();
 const toast = useToast();
 
 const showForm = ref(false);
 const semesterPendingDelete = ref(null);
 
-function handleCreate(payload) {
-  addSemester(payload);
+onMounted(() => {
+  fetchSemesters();
+});
+
+async function handleCreate(payload) {
+  await addSemester(payload);
   showForm.value = false;
   toast.success(`${payload.title} added.`);
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!semesterPendingDelete.value) return;
-  deleteSemester(semesterPendingDelete.value.id);
+  await deleteSemester(semesterPendingDelete.value.id);
   toast.info(`${semesterPendingDelete.value.title} removed.`);
   semesterPendingDelete.value = null;
 }
@@ -39,7 +43,9 @@ function confirmDelete() {
       <BaseButton @click="showForm = true">+ New semester</BaseButton>
     </section>
 
-    <div v-if="semestersWithGpa.length" class="grid-cards">
+    <p v-if="loading" class="loading-text">Loading semesters...</p>
+
+    <div v-else-if="semestersWithGpa.length" class="grid-cards">
       <SemesterCard
         v-for="semester in semestersWithGpa"
         :key="semester.id"
@@ -81,5 +87,11 @@ function confirmDelete() {
 h2 {
   margin: var(--space-1) 0 0;
   font-size: var(--fs-display-md);
+}
+
+.loading-text {
+  text-align: center;
+  color: var(--color-ink-500);
+  padding: var(--space-8) 0;
 }
 </style>

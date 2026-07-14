@@ -1,12 +1,16 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useAcademicRecord } from '../composables/useAcademicRecord';
+import { useAuth } from '../composables/useAuth';
 import { useToast } from '../composables/useToast';
+import { useRouter } from 'vue-router';
 import BaseButton from '../components/ui/BaseButton.vue';
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue';
 
-const { resetToSampleData, clearAllData } = useAcademicRecord();
+const { clearAllData } = useAcademicRecord();
+const { logout } = useAuth();
 const toast = useToast();
+const router = useRouter();
 
 const isDark = ref(localStorage.getItem('cgpa-calculator::theme') === 'dark');
 const confirmClear = ref(false);
@@ -19,9 +23,9 @@ function applyTheme(dark) {
 onMounted(() => applyTheme(isDark.value));
 watch(isDark, applyTheme);
 
-function handleReset() {
-  resetToSampleData();
-  toast.success('Sample data restored.');
+function handleLogout() {
+  logout();
+  router.push({ name: 'login' });
 }
 
 function handleClear() {
@@ -51,17 +55,24 @@ function handleClear() {
 
     <div class="card">
       <h4>Data management</h4>
-      <p>Your records are stored locally in the browser.</p>
+      <p>Your records are stored in the database linked to your account.</p>
       <div class="actions">
-        <BaseButton variant="secondary" @click="handleReset">Restore sample data</BaseButton>
         <BaseButton variant="danger" @click="confirmClear = true">Clear all records</BaseButton>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Account</h4>
+      <p>Sign out of your account on this device.</p>
+      <div class="actions">
+        <BaseButton variant="secondary" @click="handleLogout">Sign out</BaseButton>
       </div>
     </div>
 
     <ConfirmDialog
       :open="confirmClear"
       title="Clear all records?"
-      message="This deletes every semester and course from local storage. This cannot be undone."
+      message="This deletes every semester and course from the database. This cannot be undone."
       confirm-label="Clear everything"
       @confirm="handleClear"
       @cancel="confirmClear = false"

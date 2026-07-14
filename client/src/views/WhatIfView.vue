@@ -1,22 +1,22 @@
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import { useAcademicRecord } from '../composables/useAcademicRecord';
 import { projectFutureCgpa, creditsNeededForTarget } from '../utils/gpaFormulas';
 import BaseInput from '../components/ui/BaseInput.vue';
 import StatsCard from '../components/data/StatsCard.vue';
 import ProgressCard from '../components/data/ProgressCard.vue';
 
-/**
- * What-If Planner — a professional-grade feature common in real CGPA
- * calculator apps but not explicitly demanded by the assignment brief.
- * Lets a student project their CGPA forward based on a planned semester.
- */
-const { cgpa, totalCreditsEarned, profile } = useAcademicRecord();
+const { cgpa, totalCreditsEarned, profile, fetchSemesters, fetchProfile } = useAcademicRecord();
+
+onMounted(() => {
+  fetchSemesters();
+  fetchProfile();
+});
 
 const plan = reactive({
   plannedCredits: 15,
   targetSemesterGpa: 3.5,
-  targetOverallCgpa: profile.targetCgpa,
+  targetOverallCgpa: 3.5,
 });
 
 const projectedCgpa = computed(() =>

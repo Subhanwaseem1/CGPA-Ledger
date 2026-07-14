@@ -11,6 +11,7 @@ const WhatIfView = () => import('../views/WhatIfView.vue');
 const ProfileView = () => import('../views/ProfileView.vue');
 const SettingsView = () => import('../views/SettingsView.vue');
 const LoginView = () => import('../views/LoginView.vue');
+const RegisterView = () => import('../views/RegisterView.vue');
 const NotFoundView = () => import('../views/NotFoundView.vue');
 
 const routes = [
@@ -18,6 +19,11 @@ const routes = [
     path: '/login',
     component: AuthLayout,
     children: [{ path: '', name: 'login', component: LoginView, meta: { title: 'Sign In' } }],
+  },
+  {
+    path: '/register',
+    component: AuthLayout,
+    children: [{ path: '', name: 'register', component: RegisterView, meta: { title: 'Register' } }],
   },
   {
     path: '/',
@@ -58,7 +64,7 @@ router.beforeEach((to) => {
     return { name: 'login', query: { redirect: to.fullPath } };
   }
 
-  if (to.name === 'login' && state.isAuthenticated) {
+  if ((to.name === 'login' || to.name === 'register') && state.isAuthenticated) {
     return { name: 'dashboard' };
   }
 
