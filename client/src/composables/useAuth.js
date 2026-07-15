@@ -24,11 +24,13 @@ async function register(name, email, password) {
   return data;
 }
 
-function logout() {
+async function logout() {
   localStorage.removeItem('cgpa-calculator::token');
   localStorage.removeItem('cgpa-calculator::user');
   state.isAuthenticated = false;
   state.user = null;
+  const { default: router } = await import('../router/index.js');
+  router.push({ name: 'login' });
 }
 
 export function useAuth() {
