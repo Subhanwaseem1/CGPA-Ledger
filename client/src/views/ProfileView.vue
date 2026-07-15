@@ -20,14 +20,14 @@ const saving = ref(false);
 
 onMounted(async () => {
   await fetchProfile();
-  if (profile) {
+  if (profile.value) {
     Object.assign(form, {
-      name: profile.name || '',
-      rollNumber: profile.rollNumber || '',
-      program: profile.program || '',
-      department: profile.department || '',
-      university: profile.university || '',
-      targetCgpa: profile.targetCgpa || 3.5,
+      name: profile.value.name || '',
+      rollNumber: profile.value.rollNumber || '',
+      program: profile.value.program || '',
+      department: profile.value.department || '',
+      university: profile.value.university || '',
+      targetCgpa: profile.value.targetCgpa || 3.5,
     });
   }
 });

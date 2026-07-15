@@ -1,5 +1,4 @@
 import axios from 'axios';
-import router from '../router/index.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -15,9 +14,10 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('cgpa-calculator::token');
+      const { default: router } = await import('../router/index.js');
       router.push({ name: 'login' });
     }
     return Promise.reject(error);

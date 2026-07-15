@@ -1,4 +1,4 @@
-import { reactive, computed, readonly, ref } from 'vue';
+import { reactive, computed, ref, toRefs } from 'vue';
 import api from '../api/axios.js';
 import { calculateSemesterGpa, calculateCgpa, totalCredits } from '../utils/gpaFormulas';
 
@@ -115,9 +115,10 @@ function clearAllData() {
 }
 
 export function useAcademicRecord() {
+  const { profile, semesters } = toRefs(state);
   return {
-    profile: readonly(state).profile,
-    semesters: readonly(state).semesters,
+    profile,
+    semesters,
     loading,
     error,
 

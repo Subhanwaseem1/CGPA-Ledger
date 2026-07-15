@@ -11,7 +11,7 @@ const { logout } = useAuth();
 <template>
   <header class="navbar">
     <div class="title-block">
-      <span class="eyebrow">{{ profile.program }}</span>
+      <span class="eyebrow">{{ profile?.program }}</span>
       <h1>{{ route.meta.title || 'CGPA Ledger' }}</h1>
     </div>
 
@@ -20,8 +20,8 @@ const { logout } = useAuth();
         <span class="dot" aria-hidden="true" />
         CGPA <strong>{{ cgpa.toFixed(2) }}</strong>
       </div>
-      <div class="avatar" :title="profile.name">
-        {{ profile.name.split(' ').map((n) => n[0]).join('').slice(0, 2) }}
+      <div class="avatar" :title="profile?.name">
+        {{ profile?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2) }}
       </div>
       <button class="logout-btn" @click="logout">Sign out</button>
     </div>
